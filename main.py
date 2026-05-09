@@ -7,7 +7,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 一旦すべてを許可（公開後はVercelのURLにするのが安全）
+    allow_origins=["*"], # 全てのサイトからのアクセスを許可
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -98,7 +98,7 @@ export default function ProofreaderPage() {
   const handleProofread = async () => {
     if (!inputText) return;
     try {
-      const response = await fetch("[https://misukasu.pythonanywhere.com/proofread](https://misukasu.pythonanywhere.com/proofread)", {
+      const response = await fetch("[https://kousei-theta.vercel.app/](https://kousei-theta.vercel.app/)", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText, rules: rules }),

@@ -1,3 +1,10 @@
+import os
+# もし .env を使っているなら以下が必要ですが、一旦コメントアウトか削除でもOK
+# from dotenv import load_dotenv 
+# load_dotenv()
+
+# OpenAIのキーを直接書いている場合、正しく設定されているか確認
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware

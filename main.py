@@ -1,22 +1,26 @@
 import os
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import re
 
-app = Flask(__name__)
-CORS(app) # Vercelからのアクセスを許可
+app = FastAPI()
 
-# アクセスできたか確認するためのテスト用ページ
-@app.route("/", methods=["GET"])
-def index():
-    return "API is running perfectly!"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# 校正用API
-@app.route("/proofread", methods=["POST"])
-def proofread():
-    data = request.json or {}
-    text = data.get("text", "")
-    rules = data.get("rules", {})
+class ProofreadRequest(BaseModel):
+    text: str
+    rules: dict
+
+@app.post("/proofread")
+async def proofread(request: ProofreadRequest):
+    text = request.text
+    rules = request.rules
     
     if rules.get("indent"):
         lines = text.splitlines()
@@ -73,4 +77,4 @@ def proofread():
             return before + "あと" + after
         text = re.sub(r'(.?)後(.?)', replace_ato, text)
         
-    return jsonify({"result": text})
+    return {"result": text}

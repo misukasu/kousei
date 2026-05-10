@@ -98,7 +98,7 @@ export default function ProofreaderPage() {
   const handleProofread = async () => {
     if (!inputText) return;
     try {
-      const response = await fetch("https://kousei-api-xxxx.onrender.com/proofread", {
+      const response = await fetch("https://kousei-api.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText, rules: rules }),

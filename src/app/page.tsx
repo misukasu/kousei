@@ -185,10 +185,14 @@ export default function ProofreaderPage() {
           </div>
         </div>
 
-        {/* テキストエリア部分 */}
+{/* テキストエリア部分 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-[50vh]">
+          {/* 入力側 */}
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
-            <div className={`px-4 py-2 border-b text-xs font-bold ${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>校正したい文章</div>
+            {/* タイトルと同じく、ダーク時は白、ライト時は黒に設定 */}
+            <div className={`px-4 py-2 border-b text-xs font-bold ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 text-black'}`}>
+              校正したい文章
+            </div>
             <textarea
               ref={inputRef}
               onScroll={handleScroll}
@@ -199,8 +203,10 @@ export default function ProofreaderPage() {
             />
           </div>
 
+          {/* 出力側 */}
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden relative transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
-            <div className={`px-4 py-2 border-b text-xs font-bold flex justify-between items-center transition-colors ${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
+            {/* タイトルと同じく、ダーク時は白、ライト時は黒に設定 */}
+            <div className={`px-4 py-2 border-b text-xs font-bold flex justify-between items-center transition-colors ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 text-black'}`}>
               校正後の文章
               {outputText && (
                 <button onClick={handleCopy} className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-bold transition-all ${

@@ -1,28 +1,23 @@
 import os
-from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import re
 
-app = FastAPI()
+app = Flask(__name__)
+CORS(app) # Vercelからのアクセスを許可
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# アクセスできたか確認するためのテスト用ページ
+@app.route("/", methods=["GET"])
+def index():
+    return "API is running perfectly!"
 
-class ProofreadRequest(BaseModel):
-    text: str
-    rules: dict
-
-@app.post("/proofread")
-async def proofread(request: ProofreadRequest):
-    text = request.text
-    rules = request.rules
+# 校正用API
+@app.route("/proofread", methods=["POST"])
+def proofread():
+    data = request.json or {}
+    text = data.get("text", "")
+    rules = data.get("rules", {})
     
-    # 1. 行頭インデント
     if rules.get("indent"):
         lines = text.splitlines()
         new_lines = []
@@ -33,11 +28,9 @@ async def proofread(request: ProofreadRequest):
                 new_lines.append(line)
         text = "\n".join(new_lines)
         
-    # 2. 閉じ鍵括弧直前の句点を消去
     if rules.get("noPeriodInQuote"):
         text = text.replace("。」", "」")
         
-    # 3. 事 → こと
     if rules.get("kotoToKoto"):
         def replace_koto(match):
             before = match.group(1)
@@ -47,7 +40,6 @@ async def proofread(request: ProofreadRequest):
             return before + "こと" + after
         text = re.sub(r'(.?)事(.?)', replace_koto, text)
         
-    # 4. 時 → とき
     if rules.get("tokiToToki"):
         def replace_toki(match):
             before = match.group(1)
@@ -61,7 +53,6 @@ async def proofread(request: ProofreadRequest):
             return before + "とき" + after
         text = re.sub(r'(.?)時(.?)', replace_toki, text)
     
-    # 5. 方 → ほう
     if rules.get("hoToHo"):
         def replace_ho(match):
             before = match.group(1)
@@ -72,7 +63,6 @@ async def proofread(request: ProofreadRequest):
             return before + "ほう" + after
         text = re.sub(r'(.?)方(.?)', replace_ho, text)
 
-    # 6. 後 → あと
     if rules.get("atoToAto"):
         def replace_ato(match):
             before = match.group(1)
@@ -83,4 +73,4 @@ async def proofread(request: ProofreadRequest):
             return before + "あと" + after
         text = re.sub(r'(.?)後(.?)', replace_ato, text)
         
-    return {"result": text}
+    return jsonify({"result": text})

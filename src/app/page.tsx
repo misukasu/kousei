@@ -104,21 +104,21 @@ export default function ProofreaderPage() {
 
   if (!isMounted) return null;
 
-  // --- 目に優しい調整を加えたToggleコンポーネント ---
+// --- 視認性を高めつつ、まぶしさを抑えた調整 ---
   const Toggle = ({ label, enabled, onClick }: { label: string, enabled: boolean, onClick: () => void }) => (
     <div className={`flex items-center justify-between p-3 rounded-lg transition-colors ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{label}</span>
+      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{label}</span>
       <button
         onClick={onClick}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
           enabled 
-            ? (isDarkMode ? 'bg-emerald-700' : 'bg-green-500') // ダークモード時は深めのエメラルド
-            : (isDarkMode ? 'bg-gray-700' : 'bg-gray-400')
+            ? (isDarkMode ? 'bg-emerald-500' : 'bg-green-500') // 暗すぎないエメラルドに変更
+            : (isDarkMode ? 'bg-gray-600' : 'bg-gray-400')    // 未選択時も少し明るくして見やすく
         }`}
       >
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
           enabled ? 'translate-x-6' : 'translate-x-1'
-        } ${isDarkMode && 'opacity-90'}`} />
+        }`} />
       </button>
     </div>
   );

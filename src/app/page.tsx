@@ -86,7 +86,7 @@ export default function ProofreaderPage() {
       const data = await response.json();
       setOutputText(data.result);
     } catch (error) {
-      alert("Pythonサーバーを起動してください。");
+      alert("通信エラーが発生しました。");
     }
   };
 
@@ -104,11 +104,21 @@ export default function ProofreaderPage() {
 
   if (!isMounted) return null;
 
+  // --- 目に優しい調整を加えたToggleコンポーネント ---
   const Toggle = ({ label, enabled, onClick }: { label: string, enabled: boolean, onClick: () => void }) => (
-    <div className={`flex items-center justify-between p-3 rounded-lg transition-colors ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{label}</span>
-      <button onClick={onClick} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-400'}`}>
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+    <div className={`flex items-center justify-between p-3 rounded-lg transition-colors ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{label}</span>
+      <button
+        onClick={onClick}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+          enabled 
+            ? (isDarkMode ? 'bg-emerald-700' : 'bg-green-500') // ダークモード時は深めのエメラルド
+            : (isDarkMode ? 'bg-gray-700' : 'bg-gray-400')
+        }`}
+      >
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          enabled ? 'translate-x-6' : 'translate-x-1'
+        } ${isDarkMode && 'opacity-90'}`} />
       </button>
     </div>
   );
@@ -125,6 +135,8 @@ export default function ProofreaderPage() {
   return (
     <main className={`min-h-screen p-4 md:p-8 transition-colors duration-300 ${isDarkMode ? 'bg-gray-950 text-white' : 'bg-gray-100 text-black'}`}>
       <div className="max-w-6xl mx-auto space-y-6">
+        
+        {/* メインのツール部分 */}
         <div className={`p-6 rounded-xl shadow-sm transition-colors ${isDarkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-transparent'}`}>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl md:text-2xl font-bold">文章校正ツール</h1>
@@ -132,6 +144,7 @@ export default function ProofreaderPage() {
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           </div>
+          
           <div className="space-y-6">
             <section>
               <SectionHeader title="基本ルール" onToggle={() => {
@@ -144,6 +157,7 @@ export default function ProofreaderPage() {
                 <Toggle label="「。」を修正" enabled={rules.noPeriodInQuote} onClick={() => setRules({...rules, noPeriodInQuote: !rules.noPeriodInQuote})} />
               </div>
             </section>
+
             <section>
               <SectionHeader title="表記揺れ（ひらく）" onToggle={() => {
                 const keys = ['kotoToKoto', 'tokiToToki', 'hoToHo', 'atoToAto'] as const;
@@ -160,6 +174,7 @@ export default function ProofreaderPage() {
               </div>
             </section>
           </div>
+
           <div className="flex flex-col md:flex-row gap-3 mt-8">
             <button onClick={handleProofread} className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20">
               <Play size={20} /> 校正を実行する
@@ -169,6 +184,8 @@ export default function ProofreaderPage() {
             </button>
           </div>
         </div>
+
+        {/* テキストエリア部分 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-[50vh]">
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
             <div className={`px-4 py-2 border-b text-xs font-bold ${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>校正したい文章</div>
@@ -181,6 +198,7 @@ export default function ProofreaderPage() {
               onChange={(e) => setInputText(e.target.value)}
             />
           </div>
+
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden relative transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
             <div className={`px-4 py-2 border-b text-xs font-bold flex justify-between items-center transition-colors ${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
               校正後の文章
@@ -198,8 +216,8 @@ export default function ProofreaderPage() {
             </div>
           </div>
         </div>
-      </div>
-      {/* --- ここから説明文セクション --- */}
+
+        {/* --- 説明文セクション --- */}
         <footer className={`mt-12 p-8 rounded-2xl transition-colors ${isDarkMode ? 'bg-gray-900/50 text-gray-400' : 'bg-white text-gray-600'}`}>
           <div className="max-w-3xl mx-auto space-y-8">
             <section>
@@ -218,7 +236,7 @@ export default function ProofreaderPage() {
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>段落冒頭の自動一字下げ</li>
                   <li>閉じカギカッコ直前の句点除去</li>
-                  <li>「事・時・方・後」などの公用文・創作向け平仮名変換</li>
+                  <li>「事・時・方・後」などの平仮名変換</li>
                   <li>文字数・行数のリアルタイムカウント</li>
                 </ul>
               </div>
@@ -232,11 +250,12 @@ export default function ProofreaderPage() {
             </section>
 
             <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-xs opacity-50">
-              <p>&copy; 2026 文章校正ツール - Created for writers and student organizers.</p>
+              <p>&copy; 2026 文章校正ツール - Created for writers and organizers.</p>
             </div>
           </div>
         </footer>
-        {/* --- ここまで説明文セクション --- */}
+
+      </div>
     </main>
   );
 }

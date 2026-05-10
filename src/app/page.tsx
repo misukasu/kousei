@@ -199,6 +199,44 @@ export default function ProofreaderPage() {
           </div>
         </div>
       </div>
+      {/* --- ここから説明文セクション --- */}
+        <footer className={`mt-12 p-8 rounded-2xl transition-colors ${isDarkMode ? 'bg-gray-900/50 text-gray-400' : 'bg-white text-gray-600'}`}>
+          <div className="max-w-3xl mx-auto space-y-8">
+            <section>
+              <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+                このツールについて
+              </h2>
+              <p className="leading-relaxed">
+                本ツールは、小説執筆や事務書類の作成を効率化するために開発された文章校正支援アプリケーションです。
+                日本語特有の「ひらく（平仮名にする）」表現や、執筆ルールに基づいた細かな修正を一括で行うことができます。
+              </p>
+            </section>
+
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h3 className={`font-bold mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>主な機能</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>段落冒頭の自動一字下げ</li>
+                  <li>閉じカギカッコ直前の句点除去</li>
+                  <li>「事・時・方・後」などの公用文・創作向け平仮名変換</li>
+                  <li>文字数・行数のリアルタイムカウント</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className={`font-bold mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>使い方</h3>
+                <p className="text-sm leading-relaxed">
+                  左側のボックスに文章を貼り付け、適用したいルールを選択してから「校正を実行する」をクリックしてください。
+                  修正箇所はハイライト表示され、右下のボタンからワンクリックでコピー可能です。
+                </p>
+              </div>
+            </section>
+
+            <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-xs opacity-50">
+              <p>&copy; 2026 文章校正ツール - Created for writers and student organizers.</p>
+            </div>
+          </div>
+        </footer>
+        {/* --- ここまで説明文セクション --- */}
     </main>
   );
 }

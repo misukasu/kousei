@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Sun, Moon, CheckSquare, Square, Trash2, Copy, Check, Play } from 'lucide-react';
+import { Sun, Moon, CheckSquare, Square, Trash2, Copy, Check, Play, AlertCircle } from 'lucide-react';
 import { diffChars } from 'diff';
 
 export default function ProofreaderPage() {
@@ -23,6 +23,7 @@ export default function ProofreaderPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
 
+  // 初回読み込み時の設定取得
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
     if (savedDarkMode !== null) setIsDarkMode(JSON.parse(savedDarkMode));
@@ -31,6 +32,7 @@ export default function ProofreaderPage() {
     setIsMounted(true);
   }, []);
 
+  // 設定変更時の保存
   useEffect(() => {
     if (isMounted) localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
   }, [isDarkMode, isMounted]);
@@ -39,6 +41,7 @@ export default function ProofreaderPage() {
     if (isMounted) localStorage.setItem("rules", JSON.stringify(rules));
   }, [rules, isMounted]);
 
+  // スクロール同期
   const handleScroll = (e: React.UIEvent<HTMLElement>) => {
     const { scrollTop } = e.currentTarget;
     if (e.currentTarget === inputRef.current && outputRef.current) {
@@ -86,10 +89,11 @@ export default function ProofreaderPage() {
       const data = await response.json();
       setOutputText(data.result);
     } catch (error) {
-      alert("通信エラーが発生しました。");
+      alert("通信エラーが発生しました。サーバーの起動を確認してください。");
     }
   };
 
+  // 変更箇所のハイライトレンダリング
   const renderDiff = () => {
     if (!outputText) return <span className={`${isDarkMode ? 'text-gray-600' : 'text-gray-300'} italic`}>結果がここに表示されます</span>;
     const diff = diffChars(inputText, outputText);
@@ -104,7 +108,7 @@ export default function ProofreaderPage() {
 
   if (!isMounted) return null;
 
-// --- 視認性を高めつつ、まぶしさを抑えた調整 ---
+  // 共通コンポーネント: トグルスイッチ
   const Toggle = ({ label, enabled, onClick }: { label: string, enabled: boolean, onClick: () => void }) => (
     <div className={`flex items-center justify-between p-3 rounded-lg transition-colors ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
       <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{label}</span>
@@ -112,8 +116,8 @@ export default function ProofreaderPage() {
         onClick={onClick}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
           enabled 
-            ? (isDarkMode ? 'bg-emerald-500' : 'bg-green-500') // 暗すぎないエメラルドに変更
-            : (isDarkMode ? 'bg-gray-600' : 'bg-gray-400')    // 未選択時も少し明るくして見やすく
+            ? (isDarkMode ? 'bg-emerald-500' : 'bg-green-500') 
+            : (isDarkMode ? 'bg-gray-600' : 'bg-gray-400')
         }`}
       >
         <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
@@ -123,6 +127,7 @@ export default function ProofreaderPage() {
     </div>
   );
 
+  // 共通コンポーネント: セクションヘッダー
   const SectionHeader = ({ title, onToggle, allSelected }: { title: string, onToggle: () => void, allSelected: boolean }) => (
     <div className="flex justify-between items-center mb-3">
       <h2 className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{title}</h2>
@@ -136,7 +141,7 @@ export default function ProofreaderPage() {
     <main className={`min-h-screen p-4 md:p-8 transition-colors duration-300 ${isDarkMode ? 'bg-gray-950 text-white' : 'bg-gray-100 text-black'}`}>
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* メインのツール部分 */}
+        {/* 設定・ルールセクション */}
         <div className={`p-6 rounded-xl shadow-sm transition-colors ${isDarkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-transparent'}`}>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl md:text-2xl font-bold">文章校正ツール</h1>
@@ -175,24 +180,34 @@ export default function ProofreaderPage() {
             </section>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3 mt-8">
-            <button onClick={handleProofread} className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20">
-              <Play size={20} /> 校正を実行する
-            </button>
-            <button onClick={handleReset} className={`flex items-center justify-center gap-2 font-bold py-4 px-8 rounded-lg transition-all active:scale-[0.98] ${isDarkMode ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
-              <Trash2 size={20} /> 全て消去
-            </button>
+          <div className="mt-8 space-y-3">
+            {/* 初回起動に関する注意書き */}
+            <div className={`flex items-start gap-2 p-3 rounded-lg text-xs leading-relaxed transition-colors ${
+              isDarkMode ? 'bg-blue-900/20 text-blue-300 border border-blue-800/50' : 'bg-blue-50 text-blue-700 border border-blue-100'
+            }`}>
+              <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              <p>
+                <strong>【重要】</strong> しばらく使っていない場合、最初の1回目の実行には
+                <span className="font-bold underline mx-1">30秒〜1分程度</span> 
+                時間がかかることがあります。2回目以降はスムーズに動作します。
+              </p>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-3">
+              <button onClick={handleProofread} className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20">
+                <Play size={20} /> 校正を実行する
+              </button>
+              <button onClick={handleReset} className={`flex items-center justify-center gap-2 font-bold py-4 px-8 rounded-lg transition-all active:scale-[0.98] ${isDarkMode ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                <Trash2 size={20} /> 全て消去
+              </button>
+            </div>
           </div>
         </div>
 
-{/* テキストエリア部分 */}
+        {/* テキストエリア・統計セクション */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-[50vh]">
-          {/* 入力側 */}
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
-            {/* タイトルと同じく、ダーク時は白、ライト時は黒に設定 */}
-            <div className={`px-4 py-2 border-b text-xs font-bold ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 text-black'}`}>
-              校正したい文章
-            </div>
+            <div className={`px-4 py-2 border-b text-xs font-bold ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 text-black'}`}>校正したい文章</div>
             <textarea
               ref={inputRef}
               onScroll={handleScroll}
@@ -201,11 +216,14 @@ export default function ProofreaderPage() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
             />
+            <div className={`px-4 py-3 border-t grid grid-cols-3 text-center text-[10px] md:text-xs transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800 text-gray-400' : 'bg-white text-gray-500'}`}>
+              <div>全文字数: <span className={`block text-sm font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{inputStats.total}</span></div>
+              <div className={`border-x ${isDarkMode ? 'border-gray-800' : 'border-gray-100'}`}>空白除き: <span className={`block text-sm font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{inputStats.noSpace}</span></div>
+              <div>行数: <span className={`block text-sm font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{inputStats.lines}</span></div>
+            </div>
           </div>
 
-          {/* 出力側 */}
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden relative transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
-            {/* タイトルと同じく、ダーク時は白、ライト時は黒に設定 */}
             <div className={`px-4 py-2 border-b text-xs font-bold flex justify-between items-center transition-colors ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 text-black'}`}>
               校正後の文章
               {outputText && (
@@ -220,26 +238,31 @@ export default function ProofreaderPage() {
             <div ref={outputRef} onScroll={handleScroll} className={`flex-1 p-4 min-h-[200px] md:min-h-0 overflow-y-auto whitespace-pre-wrap text-base md:text-lg transition-colors ${isDarkMode ? 'bg-gray-950 text-gray-200' : 'bg-gray-50 text-gray-800'}`}>
               {renderDiff()}
             </div>
+            <div className={`px-4 py-3 border-t grid grid-cols-3 text-center text-[10px] md:text-xs transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800 text-gray-400' : 'bg-white text-gray-500'}`}>
+              <div>全文字数: <span className={`block text-sm font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{outputStats.total}</span></div>
+              <div className={`border-x ${isDarkMode ? 'border-gray-800' : 'border-gray-100'}`}>空白除き: <span className={`block text-sm font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{outputStats.noSpace}</span></div>
+              <div>行数: <span className={`block text-sm font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{outputStats.lines}</span></div>
+            </div>
           </div>
         </div>
 
-        {/* --- 説明文セクション --- */}
+        {/* 説明文・フッターセクション */}
         <footer className={`mt-12 p-8 rounded-2xl transition-colors ${isDarkMode ? 'bg-gray-900/50 text-gray-400' : 'bg-white text-gray-600'}`}>
           <div className="max-w-3xl mx-auto space-y-8">
             <section>
               <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
                 このツールについて
               </h2>
-              <p className="leading-relaxed">
+              <p className="leading-relaxed text-sm md:text-base">
                 本ツールは、小説執筆や事務書類の作成を効率化するために開発された文章校正支援アプリケーションです。
                 日本語特有の「ひらく（平仮名にする）」表現や、執筆ルールに基づいた細かな修正を一括で行うことができます。
               </p>
             </section>
 
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
               <div>
                 <h3 className={`font-bold mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>主な機能</h3>
-                <ul className="list-disc list-inside space-y-1 text-sm">
+                <ul className="list-disc list-inside space-y-1">
                   <li>段落冒頭の自動一字下げ</li>
                   <li>閉じカギカッコ直前の句点除去</li>
                   <li>「事・時・方・後」などの平仮名変換</li>
@@ -248,15 +271,15 @@ export default function ProofreaderPage() {
               </div>
               <div>
                 <h3 className={`font-bold mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>使い方</h3>
-                <p className="text-sm leading-relaxed">
+                <p className="leading-relaxed">
                   左側のボックスに文章を貼り付け、適用したいルールを選択してから「校正を実行する」をクリックしてください。
-                  修正箇所はハイライト表示され、右下のボタンからワンクリックでコピー可能です。
+                  修正箇所はハイライト表示され、右上のボタンからワンクリックでコピー可能です。
                 </p>
               </div>
             </section>
 
-            <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-xs opacity-50">
-              <p>&copy; 2026 文章校正ツール - Created for writers and organizers.</p>
+            <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-[10px] opacity-50">
+              <p>&copy; 2026 文章校正ツール - Created for writers and student organizers.</p>
             </div>
           </div>
         </footer>

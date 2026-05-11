@@ -181,13 +181,13 @@ export default function ProofreaderPage() {
           </div>
 
           <div className="mt-8 space-y-3">
-            {/* 初回起動に関する注意書き */}
+            {/* 初回起動に関する注意書き（「重要」を削除） */}
             <div className={`flex items-start gap-2 p-3 rounded-lg text-xs leading-relaxed transition-colors ${
               isDarkMode ? 'bg-blue-900/20 text-blue-300 border border-blue-800/50' : 'bg-blue-50 text-blue-700 border border-blue-100'
             }`}>
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <p>
-                <strong>【重要】</strong> しばらく使っていない場合、最初の1回目の実行には
+                しばらく使っていない場合、最初の1回目の実行には
                 <span className="font-bold underline mx-1">30秒〜1分程度</span> 
                 時間がかかることがあります。2回目以降はスムーズに動作します。
               </p>
@@ -273,7 +273,7 @@ export default function ProofreaderPage() {
                 <h3 className={`font-bold mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>使い方</h3>
                 <p className="leading-relaxed">
                   左側のボックスに文章を貼り付け、適用したいルールを選択してから「校正を実行する」をクリックしてください。
-                  修正箇所はハイライト表示され、右上のボタンからワンクリックでコピー可能です。
+                  修正箇所はハイライト表示され、右下のボタンからワンクリックでコピー可能です。
                 </p>
               </div>
             </section>

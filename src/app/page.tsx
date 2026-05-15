@@ -3,6 +3,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sun, Moon, CheckSquare, Square, Trash2, Copy, Check, Play, AlertCircle } from 'lucide-react';
 import { diffChars } from 'diff';
+// --- 1. フォントのインポートを追加 ---
+import { Noto_Serif_JP, Zen_Maru_Gothic } from 'next/font/google';
+
+// --- 2. フォントの設定を追加 ---
+const notoSerif = Noto_Serif_JP({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  display: 'swap',
+});
+
+const zenMaru = Zen_Maru_Gothic({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+});
 
 export default function ProofreaderPage() {
   const [inputText, setInputText] = useState("");
@@ -23,7 +38,6 @@ export default function ProofreaderPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
 
-  // 初回読み込み時の設定取得
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
     if (savedDarkMode !== null) setIsDarkMode(JSON.parse(savedDarkMode));
@@ -32,7 +46,6 @@ export default function ProofreaderPage() {
     setIsMounted(true);
   }, []);
 
-  // 設定変更時の保存
   useEffect(() => {
     if (isMounted) localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
   }, [isDarkMode, isMounted]);
@@ -41,7 +54,6 @@ export default function ProofreaderPage() {
     if (isMounted) localStorage.setItem("rules", JSON.stringify(rules));
   }, [rules, isMounted]);
 
-  // スクロール同期
   const handleScroll = (e: React.UIEvent<HTMLElement>) => {
     const { scrollTop } = e.currentTarget;
     if (e.currentTarget === inputRef.current && outputRef.current) {
@@ -93,7 +105,6 @@ export default function ProofreaderPage() {
     }
   };
 
-  // 変更箇所のハイライトレンダリング
   const renderDiff = () => {
     if (!outputText) return <span className={`${isDarkMode ? 'text-gray-600' : 'text-gray-300'} italic`}>結果がここに表示されます</span>;
     const diff = diffChars(inputText, outputText);
@@ -108,7 +119,6 @@ export default function ProofreaderPage() {
 
   if (!isMounted) return null;
 
-  // 共通コンポーネント: トグルスイッチ
   const Toggle = ({ label, enabled, onClick }: { label: string, enabled: boolean, onClick: () => void }) => (
     <div className={`flex items-center justify-between p-3 rounded-lg transition-colors ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
       <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{label}</span>
@@ -127,7 +137,6 @@ export default function ProofreaderPage() {
     </div>
   );
 
-  // 共通コンポーネント: セクションヘッダー
   const SectionHeader = ({ title, onToggle, allSelected }: { title: string, onToggle: () => void, allSelected: boolean }) => (
     <div className="flex justify-between items-center mb-3">
       <h2 className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{title}</h2>
@@ -138,10 +147,10 @@ export default function ProofreaderPage() {
   );
 
   return (
-    <main className={`min-h-screen p-4 md:p-8 transition-colors duration-300 ${isDarkMode ? 'bg-gray-950 text-white' : 'bg-gray-100 text-black'}`}>
+    // --- 3. mainに Zen Maru Gothic を適用 ---
+    <main className={`${zenMaru.className} min-h-screen p-4 md:p-8 transition-colors duration-300 ${isDarkMode ? 'bg-gray-950 text-white' : 'bg-gray-100 text-black'}`}>
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* 設定・ルールセクション */}
         <div className={`p-6 rounded-xl shadow-sm transition-colors ${isDarkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-transparent'}`}>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl md:text-2xl font-bold">文章校正ツール</h1>
@@ -181,7 +190,6 @@ export default function ProofreaderPage() {
           </div>
 
           <div className="mt-8 space-y-3">
-            {/* 初回起動に関する注意書き（「重要」を削除） */}
             <div className={`flex items-start gap-2 p-3 rounded-lg text-xs leading-relaxed transition-colors ${
               isDarkMode ? 'bg-blue-900/20 text-blue-300 border border-blue-800/50' : 'bg-blue-50 text-blue-700 border border-blue-100'
             }`}>
@@ -204,14 +212,14 @@ export default function ProofreaderPage() {
           </div>
         </div>
 
-        {/* テキストエリア・統計セクション */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-[50vh]">
           <div className={`flex flex-col rounded-xl shadow-sm border overflow-hidden transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white'}`}>
             <div className={`px-4 py-2 border-b text-xs font-bold ${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 text-black'}`}>校正したい文章</div>
+            {/* --- 4. textareaに Noto Serif JP を適用 --- */}
             <textarea
               ref={inputRef}
               onScroll={handleScroll}
-              className={`flex-1 p-4 min-h-[200px] md:min-h-0 resize-none focus:outline-none text-base md:text-lg transition-colors ${isDarkMode ? 'bg-gray-900 text-gray-100 placeholder-gray-500' : 'bg-white text-black placeholder-gray-400'}`}
+              className={`${notoSerif.className} flex-1 p-4 min-h-[200px] md:min-h-0 resize-none focus:outline-none text-base md:text-lg transition-colors ${isDarkMode ? 'bg-gray-900 text-gray-100 placeholder-gray-500' : 'bg-white text-black placeholder-gray-400'}`}
               placeholder="文章を貼り付けてください..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
@@ -235,7 +243,8 @@ export default function ProofreaderPage() {
                 </button>
               )}
             </div>
-            <div ref={outputRef} onScroll={handleScroll} className={`flex-1 p-4 min-h-[200px] md:min-h-0 overflow-y-auto whitespace-pre-wrap text-base md:text-lg transition-colors ${isDarkMode ? 'bg-gray-950 text-gray-200' : 'bg-gray-50 text-gray-800'}`}>
+            {/* --- 5. 結果表示エリアに Noto Serif JP を適用 --- */}
+            <div ref={outputRef} onScroll={handleScroll} className={`${notoSerif.className} flex-1 p-4 min-h-[200px] md:min-h-0 overflow-y-auto whitespace-pre-wrap text-base md:text-lg transition-colors ${isDarkMode ? 'bg-gray-950 text-gray-200' : 'bg-gray-50 text-gray-800'}`}>
               {renderDiff()}
             </div>
             <div className={`px-4 py-3 border-t grid grid-cols-3 text-center text-[10px] md:text-xs transition-colors ${isDarkMode ? 'bg-gray-900 border-gray-800 text-gray-400' : 'bg-white text-gray-500'}`}>
@@ -246,19 +255,15 @@ export default function ProofreaderPage() {
           </div>
         </div>
 
-        {/* 説明文・フッターセクション */}
         <footer className={`mt-12 p-8 rounded-2xl transition-colors ${isDarkMode ? 'bg-gray-900/50 text-gray-400' : 'bg-white text-gray-600'}`}>
           <div className="max-w-3xl mx-auto space-y-8">
             <section>
-              <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-                このツールについて
-              </h2>
+              <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>このツールについて</h2>
               <p className="leading-relaxed text-sm md:text-base">
                 本ツールは、小説執筆や事務書類の作成を効率化するために開発された文章校正支援アプリケーションです。
                 日本語特有の「ひらく（平仮名にする）」表現や、執筆ルールに基づいた細かな修正を一括で行うことができます。
               </p>
             </section>
-
             <section className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
               <div>
                 <h3 className={`font-bold mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>主な機能</h3>
@@ -277,7 +282,6 @@ export default function ProofreaderPage() {
                 </p>
               </div>
             </section>
-
             <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-[10px] opacity-50">
               <p>&copy; 2026 文章校正ツール - Created for writers and student organizers.</p>
             </div>

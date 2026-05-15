@@ -72,7 +72,13 @@ async def proofread(request: ProofreadRequest):
             before = match.group(1)
             after = match.group(2)
             is_kanji = r'[一-龠]'
-            if (before and re.match(is_kanji, before)) or (after and re.match(is_kanji, after)):
+            # 【修正ポイント】
+            # 1. 前後に漢字がある場合
+            # 2. 後ろに「ろ」が続く場合（後ろ、後ろ姿など）
+            # これらに該当する場合は「後」のままにする
+            if (before and re.match(is_kanji, before)) or \
+               (after and re.match(is_kanji, after)) or \
+               (after == "ろ"):
                 return before + "後" + after
             return before + "あと" + after
         text = re.sub(r'(.?)後(.?)', replace_ato, text)
